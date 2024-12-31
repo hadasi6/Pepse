@@ -1,12 +1,16 @@
 package pepse.world;
 
 import danogl.GameObject;
+import danogl.collisions.Collision;
 import danogl.gui.ImageReader;
 import danogl.gui.UserInputListener;
+import danogl.gui.rendering.AnimationRenderable;
 import danogl.gui.rendering.ImageRenderable;
 import danogl.util.Vector2;
 
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Avatar extends GameObject {
     private static final float VELOCITY_X = 400;
@@ -21,6 +25,12 @@ public class Avatar extends GameObject {
     private float energy; //todo - change var
     private final UserInputListener inputListener;
 
+    private final List<EnergyObserver> observers = new ArrayList<>();
+
+    private AnimationRenderable idleAnimation;
+    private AnimationRenderable runAnimation;
+    private AnimationRenderable jumpAnimation;
+
     public Avatar(Vector2 topLeftCorner, UserInputListener inputListener, ImageReader imageReader) {
         super(topLeftCorner, Vector2.ONES.mult(50), new ImageRenderable(imageReader.readImage("assets" +
                 "/idle_0.png", true).getImage()));
@@ -28,34 +38,122 @@ public class Avatar extends GameObject {
         this.energy = MAX_ENERGY;
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
         transform().setAccelerationY(GRAVITY);
+
+        // Load animations
+        idleAnimation = new AnimationRenderable(new ImageRenderable[]{
+                new ImageRenderable(imageReader.readImage("assets/idle_0.png", true).getImage()),
+                new ImageRenderable(imageReader.readImage("assets/idle_1.png", true).getImage()),
+                new ImageRenderable(imageReader.readImage("assets/idle_2.png", true).getImage()),
+                new ImageRenderable(imageReader.readImage("assets/idle_3.png", true).getImage())
+        }, 0.2f);
+
+        runAnimation = new AnimationRenderable(new ImageRenderable[]{
+                new ImageRenderable(imageReader.readImage("assets/run_0.png", true).getImage()),
+                new ImageRenderable(imageReader.readImage("assets/run_1.png", true).getImage()),
+                new ImageRenderable(imageReader.readImage("assets/run_2.png", true).getImage()),
+                new ImageRenderable(imageReader.readImage("assets/run_3.png", true).getImage()),
+                new ImageRenderable(imageReader.readImage("assets/run_4.png", true).getImage()),
+                new ImageRenderable(imageReader.readImage("assets/run_5.png", true).getImage())
+        }, 0.1f);
+
+        jumpAnimation = new AnimationRenderable(new ImageRenderable[]{
+                new ImageRenderable(imageReader.readImage("assets/jump_0.png", true).getImage()),
+                new ImageRenderable(imageReader.readImage("assets/jump_1.png", true).getImage()),
+                new ImageRenderable(imageReader.readImage("assets/jump_2.png", true).getImage()),
+                new ImageRenderable(imageReader.readImage("assets/jump_3.png", true).getImage())
+        }, 0.15f);
     }
 
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
         float xVel = 0;
-//        boolean isRunning = false;
+        boolean isRunning = false;
 
         if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
             // Do nothing if both keys are pressed
             return;
-        }else if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y()==0 && energy >= ENERGY_LOSS_JUMP) {
+        } else if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y() == 0 && energy >= ENERGY_LOSS_JUMP) {
             transform().setVelocityY(VELOCITY_Y);
             this.energy -= ENERGY_LOSS_JUMP;
+            renderer().setRenderable(jumpAnimation);
+            notifyObservers();
         } else if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && energy >= ENERGY_LOSS_RUN) {
-            xVel -= VELOCITY_X;// left arrow
+            xVel -= VELOCITY_X; // left arrow
             this.energy -= ENERGY_LOSS_RUN;
-//            isRunning = true;
-        }else if (inputListener.isKeyPressed(KeyEvent.VK_RIGHT)){
-            xVel += VELOCITY_X;// right arrow
+            renderer().setIsFlippedHorizontally(true);
+        } else if (inputListener.isKeyPressed(KeyEvent.VK_RIGHT) && energy >= ENERGY_LOSS_RUN) {
+            xVel += VELOCITY_X; // right arrow
             this.energy -= ENERGY_LOSS_RUN;
+            renderer().setIsFlippedHorizontally(false);
         } else {
-            this.energy = Math.min(energy+ENERGY_GAIN_IDLE, MAX_ENERGY);
+            this.energy = Math.min(energy + ENERGY_GAIN_IDLE, MAX_ENERGY);
+            renderer().setRenderable(idleAnimation);
         }
+
         transform().setVelocityX(xVel);
+        notifyObservers();
     }
+
+//    @Override
+//    public void update(float deltaTime) {
+//        super.update(deltaTime);
+//        float xVel = 0;
+//        boolean isRunning = false;
+//
+//        if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
+//            // Do nothing if both keys are pressed
+//            return;
+//        }else if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y()==0 && energy >= ENERGY_LOSS_JUMP) {
+//            transform().setVelocityY(VELOCITY_Y);
+//            this.energy -= ENERGY_LOSS_JUMP;
+//            renderer().setRenderable(jumpAnimation);
+//            notifyObservers();
+//        } else if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && energy >= ENERGY_LOSS_RUN) {
+//            xVel -= VELOCITY_X;// left arrow
+//            this.energy -= ENERGY_LOSS_RUN;
+//            renderer().setIsFlippedHorizontally(true);
+////          notifyObservers();
+//        }else if (inputListener.isKeyPressed(KeyEvent.VK_RIGHT)){
+//            xVel += VELOCITY_X;// right arrow
+//            this.energy -= ENERGY_LOSS_RUN;
+//            renderer().setIsFlippedHorizontally(false);
+//            notifyObservers();
+//        } else {
+//            this.energy = Math.min(energy+ENERGY_GAIN_IDLE, MAX_ENERGY);
+//            renderer().setRenderable(idleAnimation);
+//            notifyObservers();
+//        }
+//        transform().setVelocityX(xVel);
+////        System.out.println("Energy: \n" + energy);
+//    }
 
     public float getEnergy() {
         return energy;
     }
+
+    public void addObserver(EnergyObserver observer) {
+        observers.add(observer);
+    }
+
+    public void notifyObservers() {
+        for (EnergyObserver observer : observers) {
+            observer.updateEnergy(energy);
+        }
+    }
+
+    @Override
+    public void onCollisionEnter(GameObject other, Collision collision) {
+        super.onCollisionEnter(other, collision);
+        if (other.getTag().equals("fruit")) {
+            addEnergy(10);
+            other.setDimensions(Vector2.ZERO); // Hide the fruit
+        }
+    }
+
+    private void addEnergy(float amount) {
+        this.energy = Math.min(this.energy + amount, MAX_ENERGY);
+        notifyObservers();
+    }
+
 }

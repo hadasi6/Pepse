@@ -9,16 +9,15 @@ import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
 import danogl.gui.rendering.TextRenderable;
 import danogl.util.Vector2;
-import pepse.world.Avatar;
-import pepse.world.Block;
-import pepse.world.Sky;
-import pepse.world.Terrain;
+import pepse.world.*;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
+import pepse.world.trees.Tree;
 
 import java.awt.*;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class PepseGameManager extends GameManager {
     public static void main(String[] args) {
@@ -38,17 +37,17 @@ public class PepseGameManager extends GameManager {
         int windowWidth = (int) windowController.getWindowDimensions().x();
         List<Block> blocks = terrain.createInRange(0, windowWidth);
         for (Block block : blocks) {
-            gameObjects().addGameObject(block, Layer.FOREGROUND);
+            gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
         }
 
         GameObject night = Night.create(windowController.getWindowDimensions(), 30);
-        gameObjects().addGameObject(night, Layer.BACKGROUND);
+        gameObjects().addGameObject(night, Layer.FOREGROUND);
 
         GameObject sun = Sun.create(windowController.getWindowDimensions(), 30);
         gameObjects().addGameObject(sun, Layer.BACKGROUND+1);
 
         GameObject sunHalo = SunHalo.create(sun);
-        gameObjects().addGameObject(sunHalo, Layer.BACKGROUND);
+        gameObjects().addGameObject(sunHalo, Layer.BACKGROUND+2);
 
 
         // Calculate the height of the blocks at the desired x position
@@ -63,10 +62,22 @@ public class PepseGameManager extends GameManager {
         gameObjects().layers().shouldLayersCollide(Layer.DEFAULT, Layer.FOREGROUND, true);
 
         // Add energy display
-        GameObject energyDisplay = new GameObject(Vector2.ZERO, new Vector2(100, 30),
-                new TextRenderable(()->"Energy: " + avatar.getEnergy(), new Font("Arial", Font.PLAIN, 20),
-                        Color.WHITE));
+        GameObject energyDisplay = new EnergyDisplay(new Vector2(10, 10),
+                new Vector2(100, 30), avatar);
         gameObjects().addGameObject(energyDisplay, Layer.UI);
+
+
+        Tree tree = new Tree(gameObjects(), terrain, 12345);
+        tree.createInRange(0, windowWidth);
+//        Vector2 energyDisplayPosition = new Vector2(10, 10);
+////        new VisualGameObject
+
+//        Supplier<String> energySupplier = () -> "Energy: " + (int)avatar.getEnergy();
+//        TextRenderable energyTextRenderable = new TextRenderable(energySupplier.get(), "Arial");
+//        energyTextRenderable.setColor(Color.WHITE);
+//        GameObject energyDisplay = new GameObject(new Vector2(10, 10),
+//                new Vector2(100, 30), energyTextRenderable);
+//        gameObjects().addGameObject(energyDisplay, Layer.UI);
     }
 
 
