@@ -10,7 +10,7 @@ import java.awt.*;
 
 public class Night {
 
-    private static final float MIDNIGHT_OPACITY = 1f; //todo -
+    private static final float MIDNIGHT_OPACITY = 0.8f; //todo -
 
     public static GameObject create(Vector2 windowDimensions, float cycleLength) {
         RectangleRenderable nightRenderer = new RectangleRenderable(Color.BLACK);
@@ -18,7 +18,8 @@ public class Night {
         night.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
         night.setTag("Night");
 
-        new Transition<Float>(
+        //todo - i deleted <FLOAT>
+        new Transition<>(
                 night,
                 night.renderer()::setOpaqueness,
                 0f,

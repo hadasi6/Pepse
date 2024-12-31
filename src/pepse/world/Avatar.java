@@ -38,7 +38,7 @@ public class Avatar extends GameObject {
         this.energy = MAX_ENERGY;
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
         transform().setAccelerationY(GRAVITY);
-
+        setTag("avatar");
         // Load animations
         idleAnimation = new AnimationRenderable(new ImageRenderable[]{
                 new ImageRenderable(imageReader.readImage("assets/idle_0.png", true).getImage()),

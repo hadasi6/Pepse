@@ -69,6 +69,9 @@ public class PepseGameManager extends GameManager {
 
         Tree tree = new Tree(gameObjects(), terrain, 12345);
         tree.createInRange(0, windowWidth);
+
+        gameObjects().layers().shouldLayersCollide(Layer.DEFAULT, Layer.FOREGROUND-1, true);
+
 //        Vector2 energyDisplayPosition = new Vector2(10, 10);
 ////        new VisualGameObject
 
