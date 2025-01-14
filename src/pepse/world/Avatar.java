@@ -26,6 +26,7 @@ public class Avatar extends GameObject {
     private final UserInputListener inputListener;
 
     private final List<EnergyObserver> observers = new ArrayList<>();
+    private final List<JumpListener> jumpListeners = new ArrayList<>();
 
     private AnimationRenderable idleAnimation;
     private AnimationRenderable runAnimation;
@@ -64,6 +65,17 @@ public class Avatar extends GameObject {
         }, 0.15f);
     }
 
+    public void addJumpListener(JumpListener listener) {
+        jumpListeners.add(listener);
+    }
+
+    private void notifyJumpListeners() {
+        for (JumpListener listener : jumpListeners) {
+            listener.onJump();
+        }
+    }
+
+
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
@@ -78,6 +90,8 @@ public class Avatar extends GameObject {
             this.energy -= ENERGY_LOSS_JUMP;
             renderer().setRenderable(jumpAnimation);
             notifyObservers();
+            notifyJumpListeners();
+            renderer().setRenderable(jumpAnimation);
         } else if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && energy >= ENERGY_LOSS_RUN) {
             xVel -= VELOCITY_X; // left arrow
             this.energy -= ENERGY_LOSS_RUN;
@@ -95,6 +109,7 @@ public class Avatar extends GameObject {
 
         transform().setVelocityX(xVel);
         notifyObservers();
+//        notifyJumpListeners();
     }
 
 //    @Override
@@ -131,8 +146,10 @@ public class Avatar extends GameObject {
 //    }
 
     public float getEnergy() {
+
         return energy;
     }
+
 
     public void addObserver(EnergyObserver observer) {
         observers.add(observer);

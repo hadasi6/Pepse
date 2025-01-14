@@ -74,9 +74,15 @@ public class PepseGameManager extends GameManager {
 
         // Add cloud
         Vector2 cloudPosition = new Vector2(-200, 100);
-        GameObject cloud = Cloud.create(cloudPosition, windowController.getWindowDimensions(), 10);
-        gameObjects().addGameObject(cloud, Layer.BACKGROUND+3);
+        List<Block> cloudBlocks = Cloud.create(cloudPosition, windowController.getWindowDimensions(), 10, gameObjects());
+        for (Block cloudBlock : cloudBlocks) {
+            gameObjects().addGameObject(cloudBlock, Layer.BACKGROUND + 3);
+        }
 
+        Block leftBlock = cloudBlocks;
+
+        // Add rain
+        avatar.addJumpListener(new RainJumpListener(cloudPosition, gameObjects()));
 //        Vector2 energyDisplayPosition = new Vector2(10, 10);
 ////        new VisualGameObject
 

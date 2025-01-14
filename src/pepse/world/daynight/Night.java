@@ -10,7 +10,7 @@ import java.awt.*;
 
 public class Night {
 
-    private static final float MIDNIGHT_OPACITY = 0.8f; //todo -
+    private static final float MIDNIGHT_OPACITY = 0.5f; //todo -
 
     public static GameObject create(Vector2 windowDimensions, float cycleLength) {
         RectangleRenderable nightRenderer = new RectangleRenderable(Color.BLACK);
