@@ -81,10 +81,12 @@ public class Avatar extends GameObject {
         } else if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && energy >= ENERGY_LOSS_RUN) {
             xVel -= VELOCITY_X; // left arrow
             this.energy -= ENERGY_LOSS_RUN;
+            renderer().setRenderable(runAnimation);
             renderer().setIsFlippedHorizontally(true);
         } else if (inputListener.isKeyPressed(KeyEvent.VK_RIGHT) && energy >= ENERGY_LOSS_RUN) {
             xVel += VELOCITY_X; // right arrow
             this.energy -= ENERGY_LOSS_RUN;
+            renderer().setRenderable(runAnimation);
             renderer().setIsFlippedHorizontally(false);
         } else {
             this.energy = Math.min(energy + ENERGY_GAIN_IDLE, MAX_ENERGY);

@@ -72,6 +72,11 @@ public class PepseGameManager extends GameManager {
 
         gameObjects().layers().shouldLayersCollide(Layer.DEFAULT, Layer.FOREGROUND-1, true);
 
+        // Add cloud
+        Vector2 cloudPosition = new Vector2(-200, 100);
+        GameObject cloud = Cloud.create(cloudPosition, windowController.getWindowDimensions(), 10);
+        gameObjects().addGameObject(cloud, Layer.BACKGROUND+3);
+
 //        Vector2 energyDisplayPosition = new Vector2(10, 10);
 ////        new VisualGameObject
 
