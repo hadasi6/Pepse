@@ -6,11 +6,21 @@ import danogl.gui.rendering.OvalRenderable;
 
 import java.awt.*;
 
-public class SunHalo{
+/**
+ * Represents the sun halo.
+ */
+public class SunHalo {
 
+    /**
+     * Creates a new sun halo.
+     *
+     * @param sun the sun
+     * @return the sun halo
+     */
     public static GameObject create(GameObject sun) {
-        GameObject sunHalo = new GameObject(sun.getTopLeftCorner(), sun.getDimensions().mult(1.5f), new OvalRenderable(new Color(255, 255, 0, 20)
-        ));
+        GameObject sunHalo = new GameObject(sun.getTopLeftCorner(), sun.getDimensions().mult(1.5f),
+                new OvalRenderable(new Color(255, 255, 0, 20)
+                ));
         sunHalo.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
 
         sunHalo.addComponent((float deltaTime) -> {

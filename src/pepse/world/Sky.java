@@ -7,13 +7,23 @@ import danogl.components.CoordinateSpace;
 
 import java.awt.*;
 
+/**
+ * Represents the sky.
+ */
 public class Sky {
 
+    // The basic color of the sky
     private static final Color BASIC_SKY_COLOR = Color.decode("#80C6E5");
 
-
+    /**
+     * Creates a new sky.
+     *
+     * @param windowDimensions the dimensions of the window
+     * @return the sky
+     */
     public static GameObject create(Vector2 windowDimensions) {
-        GameObject sky = new GameObject(Vector2.ZERO, windowDimensions, new RectangleRenderable(BASIC_SKY_COLOR));
+        GameObject sky = new GameObject(Vector2.ZERO, windowDimensions,
+                new RectangleRenderable(BASIC_SKY_COLOR));
         sky.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
         sky.setTag("Sky");
         return sky;

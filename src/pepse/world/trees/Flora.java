@@ -15,8 +15,12 @@ import pepse.world.Terrain;
 import java.awt.*;
 import java.util.Random;
 
-public class Tree {
+/**
+ * Class that generates flora in the game world.
+ */
+public class Flora {
 
+    // Constants
     private static final Color TRUNK_COLOR = new Color(100, 50, 20);
     private static final Color LEAF_COLOR = new Color(50, 200, 30);
     private static final Color FRUIT_COLOR = new Color(255, 0, 0);
@@ -27,17 +31,30 @@ public class Tree {
     private static final float LEAF_PROBABILITY = 0.8f;
     private static final float FRUIT_PROBABILITY = 0.2f;
 
-
+    // Fields
     private GameObjectCollection gameObjects;
     private Terrain terrain;
     private Random random;
 
-    public Tree(GameObjectCollection gameObjects, Terrain terrain, int seed) {
+    /**
+     * Constructor for the Flora class.
+     *
+     * @param gameObjects the collection of game objects
+     * @param terrain     the terrain of the game world
+     * @param seed        the seed for the random number generator
+     */
+    public Flora(GameObjectCollection gameObjects, Terrain terrain, int seed) {
         this.terrain = terrain;
         this.random = new Random(seed);
         this.gameObjects = gameObjects;
     }
 
+    /**
+     * Creates trees in a given range.
+     *
+     * @param minX the minimum x-coordinate
+     * @param maxX the maximum x-coordinate
+     */
     public void createInRange(int minX, int maxX) {
         for (int x = minX; x < maxX; x += TRUNK_WIDTH) {
             if (random.nextFloat() < TREE_PROBABILITY) {
@@ -46,6 +63,11 @@ public class Tree {
         }
     }
 
+    /**
+     * Creates a tree at a given x-coordinate.
+     *
+     * @param x the x-coordinate
+     */
     private void createTree(int x) {
         float groundHeight = terrain.getGroundHeightAt(x);
         int trunkHeight = random.nextInt(100) + 50;
@@ -55,6 +77,13 @@ public class Tree {
         createFruits(x, groundHeight - trunkHeight);
     }
 
+    /**
+     * Creates a trunk at a given x-coordinate.
+     *
+     * @param x            the x-coordinate
+     * @param groundHeight the height of the ground
+     * @param trunkHeight  the height of the trunk
+     */
     private void createTrunk(int x, float groundHeight, int trunkHeight) {
         for (int y = 0; y < trunkHeight; y += TRUNK_WIDTH) {
             GameObject trunk = new GameObject(new Vector2(x, groundHeight - y - TRUNK_WIDTH),
@@ -67,6 +96,12 @@ public class Tree {
         }
     }
 
+    /**
+     * Creates leaves at a given x-coordinate.
+     *
+     * @param x          the x-coordinate
+     * @param topOfTrunk the top of the trunk
+     */
     private void createLeaves(int x, float topOfTrunk) {
         for (int dx = -LEAF_SIZE; dx <= LEAF_SIZE; dx += LEAF_SIZE) {
             for (int dy = -LEAF_SIZE; dy <= LEAF_SIZE; dy += LEAF_SIZE) {
@@ -84,6 +119,13 @@ public class Tree {
         }
     }
 
+    /**
+     * Adds oscillation to a leaf.
+     *
+     * @param leaf the leaf
+     * @param dx   the x-coordinate
+     * @param dy   the y-coordinate
+     */
     private void addLeafOscillation(GameObject leaf, int dx, int dy) {
         // Transition for leaf angle
         new ScheduledTask(leaf, random.nextFloat(), false, () -> {
@@ -101,6 +143,12 @@ public class Tree {
         });
     }
 
+    /**
+     * Creates fruits at a given x-coordinate.
+     *
+     * @param x          the x-coordinate
+     * @param topOfTrunk the top of the trunk
+     */
     private void createFruits(int x, float topOfTrunk) {
         for (int dx = -LEAF_SIZE; dx <= LEAF_SIZE; dx += LEAF_SIZE) {
             for (int dy = -LEAF_SIZE; dy <= LEAF_SIZE; dy += LEAF_SIZE) {
@@ -125,7 +173,7 @@ public class Tree {
                         }
                     };
                     fruit.setTag("fruit");
-                    gameObjects.addGameObject(fruit, Layer.FOREGROUND-1);
+                    gameObjects.addGameObject(fruit, Layer.FOREGROUND - 1);
                 }
             }
         }

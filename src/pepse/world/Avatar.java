@@ -12,7 +12,11 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The avatar of the game.
+ */
 public class Avatar extends GameObject {
+    // Constants
     private static final float VELOCITY_X = 400;
     private static final float VELOCITY_Y = -650;
     private static final float GRAVITY = 600;
@@ -22,16 +26,25 @@ public class Avatar extends GameObject {
     private static final float ENERGY_LOSS_RUN = 0.5f;
     private static final float ENERGY_LOSS_JUMP = 10;
 
-    private float energy; //todo - change var
+    // Variables
+    private float energy;
     private final UserInputListener inputListener;
-
+    // Observers
     private final List<EnergyObserver> observers = new ArrayList<>();
     private final List<JumpListener> jumpListeners = new ArrayList<>();
 
+    // Animations
     private AnimationRenderable idleAnimation;
     private AnimationRenderable runAnimation;
     private AnimationRenderable jumpAnimation;
 
+    /**
+     * Creates a new avatar.
+     *
+     * @param topLeftCorner the top left corner of the avatar
+     * @param inputListener the input listener
+     * @param imageReader   the image reader
+     */
     public Avatar(Vector2 topLeftCorner, UserInputListener inputListener, ImageReader imageReader) {
         super(topLeftCorner, Vector2.ONES.mult(50), new ImageRenderable(imageReader.readImage("assets" +
                 "/idle_0.png", true).getImage()));
@@ -65,10 +78,18 @@ public class Avatar extends GameObject {
         }, 0.15f);
     }
 
+    /**
+     * Adds a jump listener.
+     *
+     * @param listener the listener
+     */
     public void addJumpListener(JumpListener listener) {
         jumpListeners.add(listener);
     }
 
+    /**
+     * Notifies all jump listeners.
+     */
     private void notifyJumpListeners() {
         for (JumpListener listener : jumpListeners) {
             listener.onJump();
@@ -76,6 +97,11 @@ public class Avatar extends GameObject {
     }
 
 
+    /**
+     * Updates the avatar.
+     *
+     * @param deltaTime the time since the last update
+     */
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
@@ -85,7 +111,8 @@ public class Avatar extends GameObject {
         if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
             // Do nothing if both keys are pressed
             return;
-        } else if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y() == 0 && energy >= ENERGY_LOSS_JUMP) {
+        } else if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) &&
+                getVelocity().y() == 0 && energy >= ENERGY_LOSS_JUMP) {
             transform().setVelocityY(VELOCITY_Y);
             this.energy -= ENERGY_LOSS_JUMP;
             renderer().setRenderable(jumpAnimation);
@@ -112,55 +139,40 @@ public class Avatar extends GameObject {
 //        notifyJumpListeners();
     }
 
-//    @Override
-//    public void update(float deltaTime) {
-//        super.update(deltaTime);
-//        float xVel = 0;
-//        boolean isRunning = false;
-//
-//        if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
-//            // Do nothing if both keys are pressed
-//            return;
-//        }else if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && getVelocity().y()==0 && energy >= ENERGY_LOSS_JUMP) {
-//            transform().setVelocityY(VELOCITY_Y);
-//            this.energy -= ENERGY_LOSS_JUMP;
-//            renderer().setRenderable(jumpAnimation);
-//            notifyObservers();
-//        } else if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && energy >= ENERGY_LOSS_RUN) {
-//            xVel -= VELOCITY_X;// left arrow
-//            this.energy -= ENERGY_LOSS_RUN;
-//            renderer().setIsFlippedHorizontally(true);
-////          notifyObservers();
-//        }else if (inputListener.isKeyPressed(KeyEvent.VK_RIGHT)){
-//            xVel += VELOCITY_X;// right arrow
-//            this.energy -= ENERGY_LOSS_RUN;
-//            renderer().setIsFlippedHorizontally(false);
-//            notifyObservers();
-//        } else {
-//            this.energy = Math.min(energy+ENERGY_GAIN_IDLE, MAX_ENERGY);
-//            renderer().setRenderable(idleAnimation);
-//            notifyObservers();
-//        }
-//        transform().setVelocityX(xVel);
-////        System.out.println("Energy: \n" + energy);
-//    }
-
+    /**
+     * Gets the energy of the avatar.
+     *
+     * @return the energy
+     */
     public float getEnergy() {
 
         return energy;
     }
 
-
+    /**
+     * Adds an observer.
+     *
+     * @param observer the observer
+     */
     public void addObserver(EnergyObserver observer) {
         observers.add(observer);
     }
 
+    /**
+     * Notifies all observers.
+     */
     public void notifyObservers() {
         for (EnergyObserver observer : observers) {
             observer.updateEnergy(energy);
         }
     }
 
+    /**
+     * Handles collisions.
+     *
+     * @param other     the other game object
+     * @param collision the collision
+     */
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
@@ -170,6 +182,11 @@ public class Avatar extends GameObject {
         }
     }
 
+    /**
+     * Adds energy.
+     *
+     * @param amount the amount of energy to add
+     */
     private void addEnergy(float amount) {
         this.energy = Math.min(this.energy + amount, MAX_ENERGY);
         notifyObservers();

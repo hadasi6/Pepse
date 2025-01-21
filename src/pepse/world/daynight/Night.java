@@ -8,16 +8,26 @@ import danogl.util.Vector2;
 
 import java.awt.*;
 
+/**
+ * Represents the night.
+ */
 public class Night {
 
+    // The opacity of the night
     private static final float MIDNIGHT_OPACITY = 0.5f; //todo -
 
+    /**
+     * Creates a new night.
+     *
+     * @param windowDimensions the dimensions of the window
+     * @param cycleLength      the length of the day-night cycle
+     * @return the night
+     */
     public static GameObject create(Vector2 windowDimensions, float cycleLength) {
         RectangleRenderable nightRenderer = new RectangleRenderable(Color.BLACK);
         GameObject night = new GameObject(Vector2.ZERO, windowDimensions, nightRenderer);
         night.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
         night.setTag("Night");
-
         //todo - i deleted <FLOAT>
         new Transition<>(
                 night,
@@ -26,9 +36,9 @@ public class Night {
                 MIDNIGHT_OPACITY,
                 Transition.CUBIC_INTERPOLATOR_FLOAT,// use a cubic interpolator
                 cycleLength / 2, // transition fully over half a day
-        Transition.TransitionType.TRANSITION_BACK_AND_FORTH, // Choose appropriate ENUM value
-        null
-);// nothing further to execute upon reaching final value
+                Transition.TransitionType.TRANSITION_BACK_AND_FORTH, // Choose appropriate ENUM value
+                null
+        );// nothing further to execute upon reaching final value
 
 
         return night;

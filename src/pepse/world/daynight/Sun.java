@@ -7,8 +7,18 @@ import danogl.util.Vector2;
 
 import java.awt.*;
 
+/**
+ * Represents the sun.
+ */
 public class Sun {
 
+    /**
+     * Creates a new sun.
+     *
+     * @param windowDimensions the dimensions of the window
+     * @param cycleLength      the length of the day-night cycle
+     * @return the sun
+     */
     public static GameObject create(Vector2 windowDimensions, float cycleLength) {
         GameObject sun = new GameObject(Vector2.ZERO, new Vector2(100, 100),
                 new OvalRenderable(Color.YELLOW));

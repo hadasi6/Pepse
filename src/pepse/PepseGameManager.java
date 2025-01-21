@@ -9,22 +9,25 @@ import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
 import danogl.gui.rendering.Camera;
-import danogl.gui.rendering.TextRenderable;
 import danogl.util.Vector2;
 import pepse.world.*;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
-import pepse.world.trees.Tree;
+import pepse.world.trees.Flora;
 
 import java.awt.*;
 import java.util.List;
-import java.util.function.Supplier;
 
+/**
+ * The main class for the Pepse game
+ */
 public class PepseGameManager extends GameManager {
-//    private WorldManager worldManager;
+
+    //Fields
     private Vector2 windowDimensions;
 
+    // Constants
     private static final int SEED = 12345;
     private static final float NIGHT_CYCLE_LENGTH = 30;
     private static final float SUN_CYCLE_LENGTH = 30;
@@ -33,19 +36,31 @@ public class PepseGameManager extends GameManager {
     private static final float ENERGY_DISPLAY_WIDTH = 100;
     private static final float ENERGY_DISPLAY_HEIGHT = 30;
     private static final Vector2 ENERGY_DISPLAY_POSITION = new Vector2(10, 10);
-
+    //Fields
     private Avatar avatar;
     private Terrain terrain;
-    private Tree tree;
-    //    private Vector2 windowDimensions;
+    private Flora flora;
     private int minXCoord;
     private int maxXCoord;
 
+    /**
+     * Main method to run the game
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         new PepseGameManager().run();
 
     }
 
+    /**
+     * Initializes the game
+     *
+     * @param imageReader
+     * @param soundReader
+     * @param inputListener
+     * @param windowController
+     */
     @Override
     public void initializeGame(ImageReader imageReader,
                                SoundReader soundReader, UserInputListener inputListener,
@@ -75,24 +90,37 @@ public class PepseGameManager extends GameManager {
                 windowController.getWindowDimensions()
         ));
         // initialize the worldManager
-//        worldManager = new WorldManager(gameObjects(), windowController, inputListener, windowController.getWindowDimensions(), 12345);
+//        worldManager = new WorldManager(gameObjects(), windowController, inputListener, windowController
+//        .getWindowDimensions(), 12345);
 
     }
 
+    /**
+     * Updates the game
+     *
+     * @param deltaTime
+     */
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
         updateWorld();
 //        worldManager.update();
         updateAvatarLocation();
+        updateCloudPosition();
 
     }
 
+    /**
+     * Creates the sky
+     */
     private void ctreateSky() {
         GameObject sky = Sky.create(windowDimensions);
         gameObjects().addGameObject(sky, Layer.BACKGROUND);
     }
 
+    /**
+     * Creates the night
+     */
     private void createNight() {
         GameObject night = Night.create(windowDimensions, NIGHT_CYCLE_LENGTH);
         gameObjects().addGameObject(night, Layer.FOREGROUND);
@@ -101,6 +129,9 @@ public class PepseGameManager extends GameManager {
 
     }
 
+    /**
+     * Creates the sun and sun halo
+     */
     private void createSunAndSunHalo() {
         GameObject sun = Sun.create(windowDimensions, SUN_CYCLE_LENGTH);
         gameObjects().addGameObject(sun, Layer.BACKGROUND + 1);
@@ -115,6 +146,9 @@ public class PepseGameManager extends GameManager {
 
     }
 
+    /**
+     * Creates the terrain
+     */
     private void createTerrain() {
 //        terrain = new Terrain(windowDimensions, SEED);
 //        terrain.createInRange(minXCoord, maxXCoord);
@@ -128,18 +162,28 @@ public class PepseGameManager extends GameManager {
         }
     }
 
+    /**
+     * Creates the trees
+     */
     private void createTrees() {
-        tree = new Tree(gameObjects(), terrain, SEED);
-        tree.createInRange(minXCoord, maxXCoord);
+        flora = new Flora(gameObjects(), terrain, SEED);
+        flora.createInRange(minXCoord, maxXCoord);
 
 //
 //        Tree tree = new Tree(gameObjects(), terrain, 12345);
 //        tree.createInRange(0, windowWidth);
 //
-        gameObjects().layers().shouldLayersCollide(Layer.DEFAULT, Layer.FOREGROUND - 1, true);
+        gameObjects().layers().shouldLayersCollide(
+                Layer.DEFAULT, Layer.FOREGROUND - 1, true);
     }
 
 
+    /**
+     * Creates the avatar
+     *
+     * @param inputListener
+     * @param imageReader
+     */
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {
         float avatarXPosition = windowDimensions.x() / 2;
         float avatarYPosition = terrain.getGroundHeightAt(avatarXPosition) - AVATAR_HEIGHT_OFFSET;
@@ -161,8 +205,12 @@ public class PepseGameManager extends GameManager {
 
     }
 
+    /**
+     * Creates the energy display
+     */
     private void createEnergyDisplay() {
-        GameObject energyDisplay = new EnergyDisplay(ENERGY_DISPLAY_POSITION, new Vector2(ENERGY_DISPLAY_WIDTH, ENERGY_DISPLAY_HEIGHT), avatar);
+        GameObject energyDisplay = new EnergyDisplay(ENERGY_DISPLAY_POSITION,
+                new Vector2(ENERGY_DISPLAY_WIDTH, ENERGY_DISPLAY_HEIGHT), avatar);
         energyDisplay.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
         gameObjects().addGameObject(energyDisplay, Layer.UI);
 
@@ -173,18 +221,27 @@ public class PepseGameManager extends GameManager {
 
     }
 
+    /**
+     * Creates the clouds
+     */
     private void createClouds() {
         Vector2 cloudPosition = new Vector2(-200, 100);
-        List<Block> cloudBlocks = Cloud.create(cloudPosition, windowDimensions, 10, gameObjects());
+
+
+        List<Block> cloudBlocks = Cloud.create(cloudPosition, windowDimensions,
+                10, SEED);
         for (Block cloudBlock : cloudBlocks) {
             cloudBlock.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES); //todo - validate
             gameObjects().addGameObject(cloudBlock, Layer.BACKGROUND + 3);
         }
-        avatar.addJumpListener(new RainJumpListener(cloudBlocks.get(0), gameObjects()));
+        avatar.addJumpListener(new RainJumpListener(cloudBlocks.get(0),
+                (gameObject)-> gameObjects().addGameObject(gameObject, Layer.BACKGROUND+3),
+                (gameObject)-> gameObjects().removeGameObject(gameObject, Layer.BACKGROUND+3)));
 
 //        // Add cloud
 //        Vector2 cloudPosition = new Vector2(-200, 100);
-//        List<Block> cloudBlocks = Cloud.create(cloudPosition, windowController.getWindowDimensions(), 10, gameObjects());
+//        List<Block> cloudBlocks = Cloud.create(cloudPosition, windowController.getWindowDimensions(), 10,
+//        gameObjects());
 //        for (Block cloudBlock : cloudBlocks) {
 //            gameObjects().addGameObject(cloudBlock, Layer.BACKGROUND + 3);
 //        }
@@ -193,6 +250,9 @@ public class PepseGameManager extends GameManager {
 //        avatar.addJumpListener(new RainJumpListener(cloudBlocks.get(0), gameObjects()));
     }
 
+    /**
+     * Updates the world
+     */
     private void updateWorld() {
         int windowWidth = (int) windowDimensions.x();
         float centerMinCoordDelta = avatar.getCenter().x() - minXCoord;
@@ -210,21 +270,26 @@ public class PepseGameManager extends GameManager {
         removeObjectsOutOfBounds();
     }
 
+    /**
+     * Expands the ground
+     *
+     * @param minX
+     * @param maxX
+     */
     private void expandGround(int minX, int maxX) {
         List<Block> blocks = terrain.createInRange(minX, maxX);
         for (Block block : blocks) {
             gameObjects().addGameObject(block, Layer.STATIC_OBJECTS);
         }
-        tree.createInRange(minX, maxX);
+        flora.createInRange(minX, maxX);
 //        terrain.createInRange(minX, maxX);
 //        tree.createInRange(minX, maxX);
     }
 
-    private void updateWorldBoundaries(int windowWidth) {
-        minXCoord += windowWidth;
-        maxXCoord += windowWidth;
-    }
 
+    /**
+     * Removes objects that are out of bounds
+     */
     private void removeObjectsOutOfBounds() {
         for (GameObject gameObject : gameObjects()) {
             float xCoordLeftGameObject = gameObject.getTopLeftCorner().x();
@@ -245,10 +310,28 @@ public class PepseGameManager extends GameManager {
         }
     }
 
+    /**
+     * Updates the avatar location
+     */
     private void updateAvatarLocation() {
         float xCoordAvatarTopLeftCorner = avatar.getTopLeftCorner().x();
-        if (avatar.getTopLeftCorner().y() > terrain.getGroundHeightAt(xCoordAvatarTopLeftCorner) + 0.5f * Block.SIZE) {
-            avatar.setTopLeftCorner(new Vector2(xCoordAvatarTopLeftCorner, windowDimensions.y() - terrain.getGroundHeightAt(xCoordAvatarTopLeftCorner - avatar.getDimensions().y())));
+        if (avatar.getTopLeftCorner().y() > terrain.getGroundHeightAt(
+                xCoordAvatarTopLeftCorner) + 0.5f * Block.SIZE) {
+            avatar.setTopLeftCorner(new Vector2(xCoordAvatarTopLeftCorner,
+                    windowDimensions.y() - terrain.getGroundHeightAt(
+                            xCoordAvatarTopLeftCorner - avatar.getDimensions().y())));
+        }
+    }
+
+    /**
+     * Updates the cloud position
+     */
+    private void updateCloudPosition() {
+        for (GameObject gameObject : gameObjects()) {
+            if (gameObject.getTag().equals("CloudBlock")) {
+                Vector2 currentCloudPosition = gameObject.getTopLeftCorner();
+                // Update the cloud's position or any other necessary logic
+            }
         }
     }
 }
