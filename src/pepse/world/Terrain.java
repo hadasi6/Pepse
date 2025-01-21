@@ -8,15 +8,18 @@ import pepse.util.ColorSupplier;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Terrain {
 
     private final float groundHeightAtX0;
     private static final Color BASE_GROUND_COLOR = new Color(212, 123, 74);
     private static final int TERRAIN_DEPTH = 20;
+    private Random random;
 
     public Terrain(Vector2 windowDimensions, int seed) {
         this.groundHeightAtX0 = ((float) 2 / 3) * windowDimensions.y();
+        this.random = new Random(seed);
     }
 
     public float getGroundHeightAt(float x) {
@@ -39,6 +42,8 @@ public class Terrain {
     }
 
     private Block createBlock(int depth, float x, float y) {
+        // Use the hash of the x position and the seed to get a random color
+//        Random random = new Random(gameObjects.hash(x, seed)); //todo - infinite world
         Renderable rendererBlock = new RectangleRenderable(ColorSupplier.approximateColor(
                 BASE_GROUND_COLOR));
 
