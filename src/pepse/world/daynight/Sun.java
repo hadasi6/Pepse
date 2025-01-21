@@ -9,8 +9,12 @@ import java.awt.*;
 
 /**
  * Represents the sun.
+ * author: @Hadas
  */
 public class Sun {
+
+    // The dimensions of the sun
+    private static final Vector2 SUN_DIMENSIONS = new Vector2(100, 100);
 
     /**
      * Creates a new sun.
@@ -20,7 +24,7 @@ public class Sun {
      * @return the sun
      */
     public static GameObject create(Vector2 windowDimensions, float cycleLength) {
-        GameObject sun = new GameObject(Vector2.ZERO, new Vector2(100, 100),
+        GameObject sun = new GameObject(Vector2.ZERO, SUN_DIMENSIONS,
                 new OvalRenderable(Color.YELLOW));
         sun.setCoordinateSpace(danogl.components.CoordinateSpace.CAMERA_COORDINATES);
         sun.setTag("Sun");

@@ -9,11 +9,10 @@ import java.awt.*;
 
 /**
  * Represents the sky.
+ * author: @Hadas
  */
 public class Sky {
-
-    // The basic color of the sky
-    private static final Color BASIC_SKY_COLOR = Color.decode("#80C6E5");
+    private static final Color BASIC_SKY_COLOR = Color.decode("#80C6E5"); // The basic color of the sky
 
     /**
      * Creates a new sky.

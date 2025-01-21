@@ -8,6 +8,7 @@ import java.awt.*;
 
 /**
  * Displays the energy of the avatar.
+ * author: @Hadas
  */
 public class EnergyDisplay extends GameObject implements EnergyObserver {
     /**

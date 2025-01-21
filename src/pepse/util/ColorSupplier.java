@@ -3,6 +3,7 @@ package pepse.util;
 import java.awt.*;
 import java.util.Random;
 
+
 /**
  * Provides procedurally-generated colors around a pivot.
  * @author Dan Nirel
@@ -34,8 +35,6 @@ public final class ColorSupplier {
         int channel = randomChannelInRange(baseColor.getRed()-colorDelta, baseColor.getRed()+colorDelta);
         return new Color(channel, channel, channel);
     }
-
-
 
     /**
      * Returns a color similar to baseColor, with a default delta.

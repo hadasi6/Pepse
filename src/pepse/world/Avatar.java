@@ -14,12 +14,14 @@ import java.util.List;
 
 /**
  * The avatar of the game.
+ * author: @Hadas
  */
 public class Avatar extends GameObject {
     // Constants
     private static final float VELOCITY_X = 400;
     private static final float VELOCITY_Y = -650;
     private static final float GRAVITY = 600;
+    private static final float AMOUNT = 10;
 
     private static final int MAX_ENERGY = 100;
     private static final float ENERGY_GAIN_IDLE = 1;
@@ -34,9 +36,9 @@ public class Avatar extends GameObject {
     private final List<JumpListener> jumpListeners = new ArrayList<>();
 
     // Animations
-    private AnimationRenderable idleAnimation;
-    private AnimationRenderable runAnimation;
-    private AnimationRenderable jumpAnimation;
+    private final AnimationRenderable idleAnimation;
+    private final AnimationRenderable runAnimation;
+    private final AnimationRenderable jumpAnimation;
 
     /**
      * Creates a new avatar.
@@ -106,7 +108,6 @@ public class Avatar extends GameObject {
     public void update(float deltaTime) {
         super.update(deltaTime);
         float xVel = 0;
-        boolean isRunning = false;
 
         if (inputListener.isKeyPressed(KeyEvent.VK_LEFT) && inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
             // Do nothing if both keys are pressed
@@ -136,7 +137,6 @@ public class Avatar extends GameObject {
 
         transform().setVelocityX(xVel);
         notifyObservers();
-//        notifyJumpListeners();
     }
 
     /**
@@ -177,18 +177,16 @@ public class Avatar extends GameObject {
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
         if (other.getTag().equals("fruit")) {
-            addEnergy(10);
+            addEnergy();
             other.setDimensions(Vector2.ZERO); // Hide the fruit
         }
     }
 
     /**
-     * Adds energy.
-     *
-     * @param amount the amount of energy to add
+     * Adds energy to the avatar.
      */
-    private void addEnergy(float amount) {
-        this.energy = Math.min(this.energy + amount, MAX_ENERGY);
+    private void addEnergy() {
+        this.energy = Math.min(this.energy + AMOUNT, MAX_ENERGY);
         notifyObservers();
     }
 

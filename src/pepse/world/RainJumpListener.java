@@ -1,29 +1,32 @@
 package pepse.world;
 
 import danogl.GameObject;
-import danogl.collisions.GameObjectCollection;
 import danogl.util.Vector2;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Listener for jump events that creates rain.
+ * author: @Hadas
  */
 public class RainJumpListener implements JumpListener {
-    // The cloud to create rain from
-    private final GameObject cloud;
-    // The game objects to add the rain to
-    private final Consumer<GameObject> addRainDrop;
-    private final Consumer<GameObject> removeRainDrop;
+    private final Supplier<Vector2> cloudPositionSupplier; // Supplier for the cloud's position
+    private final Consumer<GameObject> addRainDrop; // The game objects to add the rain to
+    private final Consumer<GameObject> removeRainDrop; // The game objects to remove the rain from
+
+    private static final int NUM_RAIN_DROP = 10;
 
     /**
-     * Creates a new rain jump listener.
+     * Creates a new RainJumpListener.
      *
-     * @param cloud       the cloud to create rain from
-     * @param gameObjects the game objects to add the rain to
+     * @param cloudPositionSupplier the supplier for the cloud's position
+     * @param addRainDrop the game objects to add the rain to
+     * @param removeRainDrop the game objects to remove the rain from
      */
-    public RainJumpListener(GameObject cloud, Consumer<GameObject> addRainDrop, Consumer<GameObject> removeRainDrop) {
-        this.cloud = cloud;
+    public RainJumpListener(Supplier<Vector2> cloudPositionSupplier, Consumer<GameObject> addRainDrop,
+                            Consumer<GameObject> removeRainDrop) {
+        this.cloudPositionSupplier = cloudPositionSupplier;
         this.addRainDrop = addRainDrop;
         this.removeRainDrop = removeRainDrop;
     }
@@ -33,8 +36,7 @@ public class RainJumpListener implements JumpListener {
      */
     @Override
     public void onJump() {
-        System.out.println("Avatar jumped, creating rain...");
-        Vector2 currentCloudPosition = cloud.getCenter(); //todo -validate
-        Cloud.createRain(currentCloudPosition, 10, addRainDrop, removeRainDrop);
+        Vector2 currentCloudPosition = cloudPositionSupplier.get();
+        Cloud.createRain(currentCloudPosition, NUM_RAIN_DROP, addRainDrop, removeRainDrop);
     }
 }

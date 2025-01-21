@@ -1,8 +1,6 @@
 package pepse.world.trees;
 
 import danogl.GameObject;
-import danogl.collisions.GameObjectCollection;
-import danogl.collisions.Layer;
 import danogl.components.ScheduledTask;
 import danogl.components.Transition;
 import danogl.gui.rendering.OvalRenderable;
@@ -10,10 +8,9 @@ import danogl.gui.rendering.RectangleRenderable;
 import danogl.util.Vector2;
 import pepse.world.Terrain;
 
-//import danogl.gui.rendering.OvalRenderable;
-
 import java.awt.*;
 import java.util.Random;
+import java.util.function.Consumer;
 
 /**
  * Class that generates flora in the game world.
@@ -32,21 +29,26 @@ public class Flora {
     private static final float FRUIT_PROBABILITY = 0.2f;
 
     // Fields
-    private GameObjectCollection gameObjects;
-    private Terrain terrain;
-    private Random random;
+    private final Consumer<GameObject> addFlora; // Adds flora to the game
+    private final Consumer<GameObject> addTrunk; // Adds trunks to the game
+    private final Terrain terrain; // The terrain
+    private final Random random; // The random number generator
 
     /**
      * Constructor for the Flora class.
      *
-     * @param gameObjects the collection of game objects
-     * @param terrain     the terrain of the game world
-     * @param seed        the seed for the random number generator
+     * @param addFlora the consumer for adding flora
+     * @param addTrunk the consumer for adding trunks
+     * @param terrain  the terrain
+     * @param seed     the seed for the random number generator
      */
-    public Flora(GameObjectCollection gameObjects, Terrain terrain, int seed) {
+    public Flora(Consumer<GameObject> addFlora, Consumer<GameObject> addTrunk,
+                 Terrain terrain,
+                 int seed) {
         this.terrain = terrain;
         this.random = new Random(seed);
-        this.gameObjects = gameObjects;
+        this.addFlora = addFlora;
+        this.addTrunk = addTrunk;
     }
 
     /**
@@ -88,11 +90,9 @@ public class Flora {
         for (int y = 0; y < trunkHeight; y += TRUNK_WIDTH) {
             GameObject trunk = new GameObject(new Vector2(x, groundHeight - y - TRUNK_WIDTH),
                     new Vector2(TRUNK_WIDTH, TRUNK_WIDTH), new RectangleRenderable(TRUNK_COLOR));
-//            trunk.setTags("trunk");
             trunk.physics().preventIntersectionsFromDirection(Vector2.ZERO);
             trunk.physics().setMass(Float.MAX_VALUE);
-            gameObjects.addGameObject(trunk, Layer.STATIC_OBJECTS);
-            gameObjects.layers().shouldLayersCollide(Layer.STATIC_OBJECTS, Layer.DEFAULT, true);
+            addTrunk.accept(trunk);
         }
     }
 
@@ -110,7 +110,8 @@ public class Flora {
                             new GameObject(new Vector2(x + dx, topOfTrunk + dy), new Vector2(LEAF_SIZE,
                                     LEAF_SIZE), new RectangleRenderable(LEAF_COLOR));
                     leaf.setTag("leaf");
-                    gameObjects.addGameObject(leaf, Layer.FOREGROUND - 1);
+                    addFlora.accept(leaf);
+//                    gameObjects.addGameObject(leaf, Layer.FOREGROUND - 1);
 
                     // Add transitions for leaf oscillation
                     addLeafOscillation(leaf, dx, dy);
@@ -128,19 +129,15 @@ public class Flora {
      */
     private void addLeafOscillation(GameObject leaf, int dx, int dy) {
         // Transition for leaf angle
-        new ScheduledTask(leaf, random.nextFloat(), false, () -> {
-            new Transition<>(leaf,
-                    leaf.renderer()::setRenderableAngle, -10f, 10f, Transition.LINEAR_INTERPOLATOR_FLOAT, 2,
-                    Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
-        });
+        new ScheduledTask(leaf, random.nextFloat(), false, () -> new Transition<>(leaf,
+                leaf.renderer()::setRenderableAngle, -10f, 10f, Transition.LINEAR_INTERPOLATOR_FLOAT, 2,
+                Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null));
 
         // Transition for leaf width
-        new ScheduledTask(leaf, random.nextFloat(), false, () -> {
-            new Transition<>(leaf,
-                    angle -> leaf.setDimensions(new Vector2(LEAF_SIZE + angle, LEAF_SIZE)), -5f, 5f,
-                    Transition.LINEAR_INTERPOLATOR_FLOAT, 2,
-                    Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
-        });
+        new ScheduledTask(leaf, random.nextFloat(), false, () -> new Transition<>(leaf,
+                angle -> leaf.setDimensions(new Vector2(LEAF_SIZE + angle, LEAF_SIZE)), -5f, 5f,
+                Transition.LINEAR_INTERPOLATOR_FLOAT, 2,
+                Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null));
     }
 
     /**
@@ -161,19 +158,16 @@ public class Flora {
                         public void onCollisionEnter(GameObject other,
                                                      danogl.collisions.Collision collision) {
                             if (other.getTag().equals("avatar")) {
-                                System.out.println("Fruit collided and hidden");
                                 setDimensions(Vector2.ZERO); // Hide the fruit
                                 new ScheduledTask(this, 30, false, () -> {
                                     setDimensions(new Vector2(FRUIT_SIZE, FRUIT_SIZE)); // Respawn the fruit
-                                    setTopLeftCorner(new Vector2(x + finalDx, topOfTrunk + finalDy)); //
-                                    // Reset position
-                                    System.out.println("Fruit respawned");
+                                    setTopLeftCorner(new Vector2(x + finalDx, topOfTrunk + finalDy));
                                 });
                             }
                         }
                     };
                     fruit.setTag("fruit");
-                    gameObjects.addGameObject(fruit, Layer.FOREGROUND - 1);
+                    addFlora.accept(fruit);
                 }
             }
         }

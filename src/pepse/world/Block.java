@@ -6,13 +6,15 @@ import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 
 /**
- * A class that represents a block in the game world.
+ * Represents a block in the game world.
+ * author: @Hadas
  */
 public class Block extends GameObject {
+
     /**
      * The size of the block.
      */
-    public static final int SIZE = 30;
+    public static final int SIZE = 30; // The size of the block
 
     /**
      * Creates a block in the game world.

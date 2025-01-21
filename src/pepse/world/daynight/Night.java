@@ -10,11 +10,11 @@ import java.awt.*;
 
 /**
  * Represents the night.
+ * author: @Hadas
  */
 public class Night {
 
-    // The opacity of the night
-    private static final float MIDNIGHT_OPACITY = 0.5f; //todo -
+    private static final float MIDNIGHT_OPACITY = 0.5f; //the opacity of the night
 
     /**
      * Creates a new night.
@@ -28,7 +28,6 @@ public class Night {
         GameObject night = new GameObject(Vector2.ZERO, windowDimensions, nightRenderer);
         night.setCoordinateSpace(CoordinateSpace.CAMERA_COORDINATES);
         night.setTag("Night");
-        //todo - i deleted <FLOAT>
         new Transition<>(
                 night,
                 night.renderer()::setOpaqueness,
@@ -38,9 +37,7 @@ public class Night {
                 cycleLength / 2, // transition fully over half a day
                 Transition.TransitionType.TRANSITION_BACK_AND_FORTH, // Choose appropriate ENUM value
                 null
-        );// nothing further to execute upon reaching final value
-
-
+        );
         return night;
     }
 }

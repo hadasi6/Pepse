@@ -9,30 +9,26 @@ import pepse.util.NoiseGenerator;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Class that generates the terrain in the game world.
+ * author: @Hadas
  */
 public class Terrain {
 
-    // Constants
-    private final float groundHeightAtX0;
-    private static final Color BASE_GROUND_COLOR = new Color(212, 123, 74);
-    private static final int TERRAIN_DEPTH = 20;
-    // Fields
-    private Random random;
-    private final NoiseGenerator noiseGenerator;
+    private final float groundHeightAtX0; // The height of the ground at x = 0
+    private static final Color BASE_GROUND_COLOR = new Color(212, 123, 74); // ground color
+    private static final int TERRAIN_DEPTH = 20; // The depth of the terrain
+    private final NoiseGenerator noiseGenerator; // The noise generator
 
     /**
-     * Constructor for the Terrain class.
+     * Creates a new terrain.
      *
      * @param windowDimensions the dimensions of the window
-     * @param seed             the seed for the random number generator
+     * @param seed             the seed for the noise generator
      */
     public Terrain(Vector2 windowDimensions, int seed) {
         this.groundHeightAtX0 = ((float) 2 / 3) * windowDimensions.y();
-        this.random = new Random(seed);
         this.noiseGenerator = new NoiseGenerator(seed, (int) groundHeightAtX0);
     }
 
@@ -45,7 +41,6 @@ public class Terrain {
     public float getGroundHeightAt(float x) {
         float noise = (float) noiseGenerator.noise(x, Block.SIZE * 7);
         return groundHeightAtX0 + noise;
-//        return groundHeightAtX0;
     }
 
     /**
@@ -63,7 +58,7 @@ public class Terrain {
             float topBlockY = (float) Math.floor(getGroundHeightAt(x) / Block.SIZE) * Block.SIZE;
             for (int i = 0; i < TERRAIN_DEPTH; i++) {
                 float y = topBlockY + i * Block.SIZE;
-                Block block = createBlock(i, x, y);
+                Block block = createBlock(x, y);
                 blocks.add(block);
             }
         }
@@ -71,16 +66,13 @@ public class Terrain {
     }
 
     /**
-     * Creates a block at a given position.
+     * Creates a block at a given x and y coordinate.
      *
-     * @param depth the depth of the block
-     * @param x     the x-coordinate
-     * @param y     the y-coordinate
+     * @param x the x-coordinate
+     * @param y the y-coordinate
      * @return the block
      */
-    private Block createBlock(int depth, float x, float y) {
-        // Use the hash of the x position and the seed to get a random color
-//        Random random = new Random(gameObjects.hash(x, seed)); //todo - infinite world
+    private Block createBlock(float x, float y) {
         Renderable rendererBlock = new RectangleRenderable(ColorSupplier.approximateColor(
                 BASE_GROUND_COLOR));
 
