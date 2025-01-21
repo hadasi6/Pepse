@@ -7,6 +7,7 @@ import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
+import danogl.gui.rendering.Camera;
 import danogl.gui.rendering.TextRenderable;
 import danogl.util.Vector2;
 import pepse.world.*;
@@ -79,10 +80,19 @@ public class PepseGameManager extends GameManager {
             gameObjects().addGameObject(cloudBlock, Layer.BACKGROUND + 3);
         }
 
-        Block leftBlock = cloudBlocks;
+//        Block leftBlock = cloudBlocks;
 
         // Add rain
-        avatar.addJumpListener(new RainJumpListener(cloudPosition, gameObjects()));
+        avatar.addJumpListener(new RainJumpListener(cloudBlocks.get(0), gameObjects()));
+
+        //set the camera to follow the avatar
+        setCamera(new Camera(
+                avatar,
+                windowController.getWindowDimensions().mult(0.5f).subtract(avatarPosition),
+                windowController.getWindowDimensions(),
+                windowController.getWindowDimensions()
+        ));
+
 //        Vector2 energyDisplayPosition = new Vector2(10, 10);
 ////        new VisualGameObject
 

@@ -19,6 +19,7 @@ public class Cloud {
     private static final Random random = new Random();
     private static final Color BASE_CLOUD_COLOR = new Color(255, 255, 255);
 
+
     public static List<Block> create(Vector2 topLeftCorner, Vector2 windowDimensions, float cycleLength, GameObjectCollection gameObjects) {
         List<Block> cloudBlocks = new ArrayList<>();
         List<List<Integer>> cloudPattern = List.of(
