@@ -14,6 +14,7 @@ Pepse is a 2D side-scrolling game world written in Java. In this game, the playe
 
 ## Media
 *A pixel-art character stands on terrain with trees under a blue sky (energy bar at top-left). The world is generated on the fly as the character moves.*
+
 **Screenshot from Pepse:**  
 <img src="https://github.com/user-attachments/assets/47ad87c4-ddb6-4135-a69d-174fc441dc02" width="350">
 <img src="https://github.com/user-attachments/assets/5a2af635-846c-4bad-9049-606f168ad92f" width="350">
